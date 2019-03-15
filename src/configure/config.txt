@@ -1,0 +1,10 @@
+[roots]
+root_dir=D:\lee\Projects\PycharmProjects\InstitutionsTeachersSpider
+
+[driver]
+chromedriver=C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe
+
+
+[xlsx]
+ord_institutions=data\List_of_Institutions_in_China\List_of_ordinary_institutions_of_higher_learning_in_China.xlsx
+adu_institutions=data\List_of_Institutions_in_China\List_of_adult_institutions_of_higher_learning_in_China.xlsx

@@ -1,0 +1,4 @@
+[0310/100116.277:ERROR:file_io_win.cc(170)] CreateFile C:\Users\wandou\AppData\Local\Temp\scoped_dir2172_32339\Crashpad\reports\578aa957-c04e-44ed-aa63-a4d8e8361e60.dmp: 系统找不到指定的路径。 (0x3)
+[0310/100116.279:ERROR:crash_report_exception_handler.cc(97)] PrepareNewCrashReport failed
+[0311/123517.233:ERROR:file_io_win.cc(170)] CreateFile C:\Users\wandou\AppData\Local\Temp\scoped_dir2172_32339\Crashpad\reports\8f02299d-43aa-4fcd-9e69-78b783e23bbd.dmp: 系统找不到指定的路径。 (0x3)
+[0311/123517.233:ERROR:crash_report_exception_handler.cc(97)] PrepareNewCrashReport failed
