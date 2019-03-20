@@ -87,11 +87,11 @@ class SchoolWebPageTree(object):
         else:
             threshold -= 0.21
         if '图书馆' in node_title:
-            threshold -= 1.05
+            threshold -= 3.05
         if '就业' in node_title or '就业信息'in node_title or '招聘' in node_title:
-            threshold -= 1.05
+            threshold -= 3.05
         if '有限公司' in node_title or '集团' in node_title:
-            threshold -= 1.05
+            threshold -= 3.05
 
         if threshold >= 1:
             return True
@@ -228,12 +228,12 @@ class SchoolWebPageTree(object):
 
 
 if __name__ == "__main__":
-    # ruc = SchoolWebPageTree(url='https://www.ruc.edu.cn/',
-    #                         school_name='中国人民大学', abbreviation_cn='人大', abbreviation_en='ruc')
+    ruc = SchoolWebPageTree(url='https://www.ruc.edu.cn/',
+                            school_name='中国人民大学', abbreviation_cn='人大', abbreviation_en='ruc')
     # ruc = SchoolWebPageTree(url='http://www.tjghxy.com/',
     #                         school_name='天津市工会管理干部学院', abbreviation_cn='天津市工会管理干部学院', abbreviation_en='tjghxy')
-    ruc = SchoolWebPageTree(url='http://www.hust.edu.cn/',
-                            school_name='华中科技大学', abbreviation_cn='华科', abbreviation_en='HUST')
+    # ruc = SchoolWebPageTree(url='http://www.hust.edu.cn/',
+    #                         school_name='华中科技大学', abbreviation_cn='华科', abbreviation_en='HUST')
     ruc.building_tree()
     ruc.tree.root_node.display()
     print('\n\n')

@@ -2,3 +2,5 @@
 [0310/100116.279:ERROR:crash_report_exception_handler.cc(97)] PrepareNewCrashReport failed
 [0311/123517.233:ERROR:file_io_win.cc(170)] CreateFile C:\Users\wandou\AppData\Local\Temp\scoped_dir2172_32339\Crashpad\reports\8f02299d-43aa-4fcd-9e69-78b783e23bbd.dmp: 系统找不到指定的路径。 (0x3)
 [0311/123517.233:ERROR:crash_report_exception_handler.cc(97)] PrepareNewCrashReport failed
+[0319/110354.441:ERROR:file_io_win.cc(170)] CreateFile C:\Users\lizujun\AppData\Local\Temp\scoped_dir16332_4032\Crashpad\reports\3a269088-07fd-43d8-86f3-030bc286b160.dmp: The system cannot find the path specified. (0x3)
+[0319/110354.462:ERROR:crash_report_exception_handler.cc(97)] PrepareNewCrashReport failed
