@@ -11,6 +11,7 @@ import hashlib
 import zlib
 import re
 import os
+from src.get_conf.log_conf import LoggingConfigure
 
 
 # 页面节点数据结构
@@ -25,6 +26,9 @@ class PageNode(object):
         self.child_list = []    # 子节点列表
         self.is_teacher_page = False
         self.html = html
+        self.logger = LoggingConfigure()
+
+
 
     # 添加一个孩子节点
     def add_child(self, node):
@@ -126,12 +130,16 @@ class PageNode(object):
 
     # 展示树形结构
     def display(self, depth=0):
+
         if self.url is not None \
                 and self.title is not None:
-            print('- ' * depth + self.title + '\t' + self.url + '\t' + self.md5String + '\t' + str(self.depth))
+            # print('- ' * depth + self.title + '\t' + self.url + '\t' + self.md5String + '\t' + str(self.depth))
+            self.logger.log_debug('node_display', '- ' * depth + self.title + '\t' + self.url + '\t' + self.md5String + '\t' + str(self.depth))
+
         elif self.url is not None\
                 and self.title is None:
-            print('- ' * depth + "title: None" + '\t' + self.url + '\t' + self.md5String + '\t' + str(self.depth))
+            # print('- ' * depth + "title: None" + '\t' + self.url + '\t' + self.md5String + '\t' + str(self.depth))
+            self.logger.log_debug('node_display', '- ' * depth + "title: None" + '\t' + self.url + '\t' + self.md5String + '\t' + str(self.depth))
         for child in self.child_list:
             child.display(depth + 2)
 
@@ -147,5 +155,5 @@ if __name__ == "__main__":
     cheng = PageNode(url='http://wenxueyuan.ruc.edu.cn/sz/show/?106', title='中国人民大学文学院 - 师资团队 - 在职教师')
     shizi.add_child(cheng)
     ruc.display()
-    print(hum.parent.url)
+    # print(hum.parent.url)
     pass

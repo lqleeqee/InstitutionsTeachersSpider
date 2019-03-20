@@ -26,6 +26,7 @@ importlib.reload(sys)
 from src.Spider.WebSpiderParams.WebSpiderDriver import SpiderDriver
 from src.Spider.WebSpiderParams.MultiBranchesTree import MultiWayTree
 from src.Spider.WebSpiderParams.PageNode import PageNode
+from src.get_conf.log_conf import LoggingConfigure
 sys.setrecursionlimit(1000000)
 
 
@@ -33,6 +34,7 @@ class SchoolWebPageTree(object):
 
     def __init__(self, url=None, school_name=None, abbreviation_cn=None, abbreviation_en=None):
         self.home_url = url.strip()
+        self.logger = LoggingConfigure()
         self.school_name = school_name.strip()
         self.dn = self.get_domain_name().strip()
         self.abbreviation_cn = abbreviation_cn.strip()
@@ -124,14 +126,16 @@ class SchoolWebPageTree(object):
             # 首先，跳过已经访问过的url
             link_md5 = hashlib.md5(link.encode("utf-8")).hexdigest()
             if link_md5 in self.access_histories:
-                print("Have visited: ", link)
+                self.logger.log_debug("Creat Tree", ('Have visited: ', link))
+                # print("Have visited: ", link)
                 continue
             # 去除视频，图片，email，等
             # 要去除两次，跳转后，去除第二次，这是第一次
             if not self.driver.is_url(link) or self.driver.is_css(link) \
                     or self.driver.is_img(link) or self.driver.is_email(link) \
                     or self.driver.is_video(link) or self.driver.is_doc(link):
-                print('Invalid URL: ', link)
+                # print('Invalid URL: ', link)
+                self.logger.log_debug("Creat Tree", ('Invalid URL: ', link))
                 self.access_histories.add(link_md5)
                 continue
             try:
@@ -145,7 +149,8 @@ class SchoolWebPageTree(object):
                 link_md5 = hashlib.md5(link.encode("utf-8")).hexdigest()
                 # 如果已经访问过，则跳过
                 if link_md5 in self.access_histories:
-                    print("Have visited: ", link)
+                    self.logger.log_debug("Creat Tree", ('Have visited: ', link))
+                    # print("Have visited: ", link)
                     continue
                 else:
                     self.access_histories.add(link_md5)
@@ -153,22 +158,28 @@ class SchoolWebPageTree(object):
                 if not self.driver.is_url(link) or self.driver.is_css(link) \
                         or self.driver.is_img(link) or self.driver.is_email(link) \
                         or self.driver.is_video(link) or self.driver.is_doc(link):
-                    print('Invalid URL: ', link)
+                    # print('Invalid URL: ', link)
+                    self.logger.log_debug("Creat Tree", ('Invalid URL: ', link))
                     self.access_histories.add(hashlib.md5(link.encode("utf-8")).hexdigest())
                     continue
                 # 根据状态码判断是否跳过
                 r = requests.get(link, timeout=5)
                 status_code = r.status_code
                 if status_code < 200 or status_code > 400:
-                    print('Unreachable url: %s, status_code: %s', (link, str(status_code)))
+                    # print('Unreachable url: %s, status_code: %s', (link, str(status_code)))
+                    self.logger.log_debug("Creat Tree",
+                                          ('Unreachable url: %s, status_code: %s', (link, str(status_code))))
                     continue
                 # 如果是新页面，且被判断为学校站点的页面，则添加到树中
                 if self.is_school_web_url(link, title):
-                    print(status_code, link, title)
+                    msg = 'new node:  status_code: %d, url : %s , title: %s' % (status_code, link, title)
+                    # print(msg)
+                    self.logger.log_debug('Creat Tree',  msg)
                     page_html = self.driver.get_source()
                     yield PageNode(url=link, title=title, html=page_html), parent_url
                 else:
-                    print("It's not an internal school page: ", link)
+                    # print("It's not an internal school page: ", link)
+                    self.logger.log_debug("Creat Tree", ("It's not an internal school page: ", link))
             except requests.exceptions.ConnectionError as requestsError:
                 print(requestsError)
                 continue
@@ -191,7 +202,8 @@ class SchoolWebPageTree(object):
 
     def building_tree(self):
         if self.whether_break():
-            print("School Tree has been created!")
+            # print("School Tree has been created!")
+            self.logger.log_debug("Creat Tree", 'School Tree has been created!')
             return True
         self.tree.root_node.display()
         if not self.leaves_nodes:
@@ -203,11 +215,13 @@ class SchoolWebPageTree(object):
                 for new_node, parent_url in self.open_all_url(pre_link):
                     self.tree.__add__(new_node, parent_node_url=parent_url)
             except selenium_error.StaleElementReferenceException as e:
-                print("StaleElementReferenceException: ", e)
+                # print("StaleElementReferenceException: ", e)
+                self.logger.log_debug("Creat Tree",("StaleElementReferenceException: ", e))
                 continue
                 pass
             except selenium_error.NoSuchWindowException as noWindows:
-                print('selenium.common.exceptions.NoSuchWindowException:', noWindows)
+                # print('selenium.common.exceptions.NoSuchWindowException:', noWindows)
+                self.logger.log_debug('Creat Tree', ('selenium.common.exceptions.NoSuchWindowException:', noWindows))
                 continue
                 pass
         return self.building_tree()

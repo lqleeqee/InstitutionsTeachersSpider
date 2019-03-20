@@ -46,7 +46,8 @@ class LoggingConfigure(object):
                   'WARNING':logging.WARNING,'INFO':logging.INFO,
                   'DEBUG':logging.DEBUG,'NOTSET':logging.NOTSET}
         level = level.upper().strip()
-        message = message.__str__()
+        # message = message.__str__()
+        # message = str(message)
         logger = logging.getLogger(logger_name)
         logger.setLevel(levels.get(level))  # default log level
         fmt = logging.Formatter(self.fmt)  # output format

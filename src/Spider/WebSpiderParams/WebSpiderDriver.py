@@ -7,17 +7,13 @@
 # @File    : WebSpiderDriver.py
 # @license : Copyright(C), Lee
 # @Software: PyCharm
-from selenium.common import exceptions
-from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
-from src.configure.conf import Conf
 from selenium.common import exceptions as selenium_error
 import time
 import re
-import zlib
 import traceback
-import requests
-from src.Spider.WebSpiderParams.PageNode import PageNode
+from src.get_conf.proj_conf import ProjectConfigure as Conf
+from src.get_conf.log_conf import LoggingConfigure
 
 
 class SpiderDriver(object):
@@ -32,18 +28,20 @@ class SpiderDriver(object):
             }
         }
         chrome_options.add_experimental_option("prefs", prefs)
-        chromedriver_path = config.get_conf().get('driver', 'chromedriver')
+        chromedriver_path = config.get('driver', 'chromedriver')
         #chrome_options.add_argument()
-
+        self.logger = LoggingConfigure()
+        self.logger.log_debug('Driver', 'launch chromedriver')
         self.driver = webdriver.Chrome(executable_path=chromedriver_path, chrome_options=chrome_options)
         self.driver.maximize_window()
         self.driver.implicitly_wait(50)
         self.driver.set_page_load_timeout(50)
         self.driver.set_script_timeout(10)
+
         pass
 
     def get(self, url):
-        print("get url: ", url)
+        self.logger.log_debug('Driver', ("get url: ", url))
         main_win = self.driver.current_window_handle  # 记录当前窗口的句柄
         all_win = self.driver.window_handles
         # self.driver.switch_to.alert().accept()
@@ -51,13 +49,14 @@ class SpiderDriver(object):
         # alert.dismiss()
         try:
             if len(all_win) == 1:
-                print('弹出保护罩')
+                # print('弹出保护罩')
+                self.logger.log_debug('Driver', '弹出保护罩')
                 js = 'window.open("https://www.baidu.com");'
                 self.driver.execute_script(js)
                 # 还是定位在main_win上的
                 for win in all_win:
                     if main_win != win:
-                        print('保护罩WIN', win, 'Main', main_win)
+                        self.logger.log_debug('Driver', ('保护罩WIN', win, 'Main', main_win))
                         self.driver.switch_to.window(main_win)
             self.driver.get(url)
             #time.sleep(10)
@@ -67,8 +66,10 @@ class SpiderDriver(object):
             # 切换新的浏览器窗口
             for win in all_win:
                 if main_win != win:
-                    print('WIN', win, 'Main', main_win)
-                    print('切换到保护罩')
+                    # print('WIN', win, 'Main', main_win)
+                    self.logger.log_debug('Driver', ('WIN', win, 'Main', main_win))
+                    # print('切换到保护罩')
+                    self.logger.log_debug('Driver', '切换到保护罩')
                     self.driver.close()
                     self.driver.switch_to.window(win)
                     main_win = win
@@ -76,14 +77,8 @@ class SpiderDriver(object):
             js = 'window.open("https://www.baidu.com");'
             self.driver.execute_script(js)
             if 'time' in str(traceback.format_exc()):
-                print('页面访问超时')
-
-        # except selenium_error.UnexpectedAlertPresentException as s:
-        #     print('NoAlertPresentException: ', s)
-        #     self.driver.close()
-        #     win = self.driver.window_handles[0]
-        #     self.driver.switch_to.window(win)
-        #     main_win = win
+                # print('页面访问超时')
+                self.logger.log_debug('Driver', '页面访问超时')
         pass
 
     def reflush(self):
@@ -95,12 +90,13 @@ class SpiderDriver(object):
         pass
 
     def page_source(self):
-        #return self.driver.page_source
+        # return self.driver.page_source
         try:
             page_source = self.driver.page_source
             return page_source
         except selenium_error.UnexpectedAlertPresentException as s:
-            print('UnexpectedAlertPresentException: ', s)
+            # print('UnexpectedAlertPresentException: ', s)
+            self.logger.log_debug('Driver', ('UnexpectedAlertPresentException: ', s))
             alert_title = self.driver.switch_to.alert
             alert_title.accept()
         finally:
@@ -114,7 +110,8 @@ class SpiderDriver(object):
             url = self.driver.current_url
             return url
         except selenium_error.UnexpectedAlertPresentException as s:
-            print('UnexpectedAlertPresentException: ', s)
+            # print('UnexpectedAlertPresentException: ', s)
+            self.logger.log_debug('Driver', ('UnexpectedAlertPresentException: ', s))
             alert_title = self.driver.switch_to.alert
             alert_title.accept()
             time.sleep(10)
@@ -128,7 +125,8 @@ class SpiderDriver(object):
             curr_title = self.driver.title.strip()
             return curr_title
         except selenium_error.UnexpectedAlertPresentException as s:
-            print('UnexpectedAlertPresentException: ', s)
+            # print('UnexpectedAlertPresentException: ', s)
+            self.logger.log_debug('Driver', ('UnexpectedAlertPresentException: ', s))
             alert_title = self.driver.switch_to.alert
             alert_title.accept()
             time.sleep(10)
@@ -187,7 +185,7 @@ class SpiderDriver(object):
     @classmethod
     def is_video(cls, video_url):
         pattern = re.match(
-            r'(http|ftp|https):.*?\.(flv|mp4|mp3|wmv|rmvb|mpeg|rm|mov|swf)', video_url,
+            r'(http|ftp|https):.*?\.(flv|mp4|mp3|wmv|rmvb|mpeg|rm|mov|swf|avi|mpg|ram|mdi|mdid|wav|wma|mpga)', video_url,
             re.IGNORECASE)
         if pattern:
             return True
@@ -204,36 +202,6 @@ class SpiderDriver(object):
         else:
             return False
 
-    # def open_all_url(self):
-    #     parent_url = self.driver.current_url
-    #     links = [link.get_attribute('href').strip() for link in self.driver.find_elements_by_xpath("//*[@href]")]
-    #     links = list(set(links))
-    #     for link in links:
-    #         if not self.is_url(link):
-    #             print('Invalid URL: ', link)
-    #             continue
-    #         if self.is_css(link):
-    #             #print("CSS address: ", link)
-    #             continue
-    #         if self.is_img(link):
-    #             #print("Img URL: ", link)
-    #             continue
-    #         if self.is_email(link):
-    #             #print("Email address: ", link)
-    #             continue
-    #         r = requests.get(link)
-    #         status_code = r.status_code
-    #         if status_code < 200 or status_code > 400:
-    #             print('Unreachable url: %s, status_code: %s', (link, str(status_code)))
-    #             continue
-    #         self.get(link)
-    #         #time.sleep(10)
-    #         title = self.title()
-    #         print(status_code, link, title)
-    #         yield PageNode(url=link, title=title), parent_url
-    #         # #link.send_keys(Keys.COMMAND, "t")
-    #     pass
-
     def get_source(self):
         page = self.driver.page_source
         #return zlib.compress(page)
@@ -248,21 +216,6 @@ if __name__ == "__main__":
     print('url: ', driver.current_url())
     print("source: ", driver.page_source())
     print("title: ", driver.title())
-    # try:
-    #     print("title: ", driver.title())
-    # except selenium_error.UnexpectedAlertPresentException as s:
-    #     print('NoAlertPresentException: ', s)
-    #     alert = driver.driver.switch_to.alert
-    #     alert.accept()
-    #     time.sleep(10)
-    # finally:
-    #     time.sleep(10)
-    #     print("title: ", driver.title())
-
-
-    # for node, parent_url in driver.open_all_url():
-    #     node.display()
-    #driver.open_all_url()
-    #driver.quit()
+    driver.quit()
     pass
 
